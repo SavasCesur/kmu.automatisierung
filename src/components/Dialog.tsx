@@ -20,7 +20,8 @@ export function Dialog({
     const previous = document.activeElement as HTMLElement;
     const old = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    ref.current?.focus();
+    const initial = ref.current?.querySelector<HTMLElement>("input, textarea");
+    (initial || ref.current)?.focus({ preventScroll: true });
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "Tab") {
@@ -47,7 +48,7 @@ export function Dialog({
     return () => {
       document.body.style.overflow = old;
       document.removeEventListener("keydown", key);
-      previous?.focus();
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, [onClose]);
   return (

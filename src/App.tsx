@@ -1,3 +1,4 @@
+import { FocusWork } from "./components/FocusWork";
 import { DecisionsSection } from "./components/DecisionsSection";
 import { RoadmapSection } from "./components/RoadmapSection";
 import { PilotSection } from "./components/PilotSection";
@@ -19,9 +20,12 @@ import { Dialog } from "./components/Dialog";
 
 const tabs = [
   ["overview", "Übersicht"],
-  ["projects", "Projektbereiche"],
   ["tasks", "Aufgaben"],
+  ["projects", "Projektbereiche"],
+  ["pilot", "Pilot"],
+  ["risks", "Risiken"],
   ["decisions", "Entscheidungen"],
+  ["roadmap", "Roadmap"],
 ];
 function App() {
   const [data, setData] = useState<DashboardData | null>(null),
@@ -68,6 +72,7 @@ function App() {
   }, [toast]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobile(false);
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
         setPanel({ kind: "search" });
@@ -79,14 +84,18 @@ function App() {
   const jump = (id: string) => {
     setActiveTab(id);
     document
-      .getElementById(id)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      .getElementById("overview")
+      ?.scrollIntoView({ behavior: "instant", block: "start" });
     setMobile(false);
   };
   const openNav = (number: string) => {
     setMobile(false);
     if (number === "00") {
       jump("overview");
+      return;
+    }
+    if (number === "03") {
+      jump("pilot");
       return;
     }
     if (number === "10") {
@@ -168,7 +177,7 @@ function App() {
       onClick={() => setPanel({ kind: "task", item: task })}
     >
       <span className="task-checkbox">
-        <Icon name="circle" size={17} />
+        <Icon name="tasks" size={17} />
       </span>
       <span className="task-main">
         <strong>{task.title}</strong>
@@ -227,33 +236,48 @@ function App() {
           </button>
         </div>
         <nav aria-label="Hauptnavigation">
-          {navigation.map(([num, title, icon]) => (
+          {[
+            ["00", "Übersicht", "dashboard", "overview"],
+            ["tasks", "Aufgaben", "tasks", "tasks"],
+            ["projects", "Projektbereiche", "layers", "projects"],
+            ["03", "Pilot – Zaunbetrieb", "fence", "pilot"],
+            ["risks", "Risiken & Blocker", "warning", "risks"],
+            ["10", "Entscheidungen", "book", "decisions"],
+            ["11", "Roadmap", "route", "roadmap"],
+          ].map(([num, title, icon, view]) => (
             <button
               key={num}
-              title={`${num} – ${title}`}
-              className={`nav-item ${num === "00" ? "active" : ""}`}
-              onClick={() => openNav(num)}
+              className={`nav-item ${activeTab === view ? "active" : ""}`}
+              aria-current={activeTab === view ? "page" : undefined}
+              title={title}
+              onClick={() => jump(view)}
             >
-              <Icon name={icon} size={18} />
-              <span className="nav-number">{num}</span>
+              <Icon name={icon} />
               <span className="nav-text">{title}</span>
-              {num === "00" && <span className="nav-active-dot" />}
             </button>
           ))}
+          <details className="nav-more">
+            <summary>
+              <Icon name="more" />
+              <span>Weitere Bereiche</span>
+              <Icon name="down" size={14} />
+            </summary>
+            {navigation
+              .filter(([num]) => !["00", "03", "10", "11"].includes(num))
+              .map(([num, title, icon]) => (
+                <button
+                  key={num}
+                  className="nav-item"
+                  title={title}
+                  onClick={() => openNav(num)}
+                >
+                  <Icon name={icon} />
+                  <span className="nav-text">{title}</span>
+                </button>
+              ))}
+          </details>
         </nav>
         <div className="sidebar-bottom">
-          <div className="sidebar-note">
-            <span className="sidebar-note-icon">
-              <Icon name="layers" size={18} />
-            </span>
-            <strong>Schritt für Schritt. Mit System.</strong>
-            <p>
-              Vom ersten Pilotprozess zum
-              <br />
-              wiederverwendbaren Cockpit.
-            </p>
-            <span className="version">V1 · Pilotentwicklung</span>
-          </div>
           <button
             className="utility-item"
             onClick={() => setPanel({ kind: "settings" })}
@@ -374,6 +398,7 @@ function App() {
                 <button
                   key={id}
                   className={activeTab === id ? "selected" : ""}
+                  aria-current={activeTab === id ? "page" : undefined}
                   onClick={() => jump(id)}
                 >
                   {label}
@@ -403,149 +428,87 @@ function App() {
           ) : (
             data && (
               <>
-                <DashboardOverview
-                  data={data}
-                  setPanel={setPanel}
-                  jump={jump}
-                />
-                <ProjectAreas
-                  projects={projects}
-                  status={status}
-                  setStatus={setStatus}
-                  priority={priority}
-                  setPriority={setPriority}
-                  setPanel={setPanel}
-                  showAll={showAll}
-                  setShowAll={setShowAll}
-                />
-                <PilotSection data={data} />
-                <div className="work-grid">
-                  <section className="tasks-section card" id="tasks">
-                    <div className="inner-section-heading">
-                      <div>
-                        <h2>Nächste Schritte</h2>
-                        <p>Was den Pilot jetzt voranbringt.</p>
+                {activeTab === "overview" && (
+                  <DashboardOverview
+                    data={data}
+                    setPanel={setPanel}
+                    jump={jump}
+                  />
+                )}
+                {["overview", "tasks", "risks"].includes(activeTab) && (
+                  <FocusWork
+                    data={data}
+                    view={activeTab}
+                    tasks={tasks}
+                    taskTab={taskTab}
+                    setTaskTab={setTaskTab}
+                    renderTask={renderTask}
+                    setPanel={setPanel}
+                    jump={jump}
+                  />
+                )}
+                {activeTab === "projects" && (
+                  <ProjectAreas
+                    projects={projects}
+                    status={status}
+                    setStatus={setStatus}
+                    priority={priority}
+                    setPriority={setPriority}
+                    setPanel={setPanel}
+                    showAll={showAll}
+                    setShowAll={setShowAll}
+                  />
+                )}
+                {activeTab === "pilot" && <PilotSection data={data} />}
+                {activeTab === "decisions" && (
+                  <DecisionsSection data={data} setPanel={setPanel} />
+                )}
+                {activeTab === "roadmap" && (
+                  <>
+                    <RoadmapSection data={data} setPanel={setPanel} />
+                    <details className="context-details card">
+                      <summary>
+                        Langfristige Vision <Icon name="down" size={16} />
+                      </summary>
+                      <div className="context-body">
+                        <p>
+                          Anfrageautomation → Kundenfreigabe → Kundenübersicht →
+                          Betriebs-Cockpit → standardisierte Module
+                        </p>
+                        <span className="vision-note">
+                          Nicht Teil der aktuellen V1
+                        </span>
                       </div>
+                    </details>
+                  </>
+                )}
+                {activeTab === "overview" && (
+                  <details className="context-details card">
+                    <summary>
+                      Projektwissen & Planung <span>Details bei Bedarf</span>
+                      <Icon name="down" size={16} />
+                    </summary>
+                    <div className="context-links">
+                      <button onClick={() => jump("projects")}>
+                        <Icon name="layers" />
+                        Projektbereiche
+                        <Icon name="arrow" size={16} />
+                      </button>
+                      <button onClick={() => jump("roadmap")}>
+                        <Icon name="route" />
+                        Roadmap
+                        <Icon name="arrow" size={16} />
+                      </button>
                       <button
-                        className="icon-button"
-                        aria-label="Neue Aufgabe erstellen"
-                        onClick={() => setPanel({ kind: "newTask" })}
+                        onClick={() => setPanel({ kind: "architecture" })}
                       >
-                        <Icon name="plus" />
+                        <Icon name="workflow" />
+                        Architektur
+                        <Icon name="arrow" size={16} />
                       </button>
                     </div>
-                    <div className="task-tabs">
-                      {["Alle", "In Arbeit", "Offen & geplant"].map((tab) => (
-                        <button
-                          className={taskTab === tab ? "active" : ""}
-                          key={tab}
-                          onClick={() => setTaskTab(tab)}
-                        >
-                          {tab}
-                          {tab === "Alle" && <span>{data.tasks.length}</span>}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="task-list">
-                      {tasks.length ? (
-                        tasks.map(renderTask)
-                      ) : (
-                        <EmptyState
-                          text="Keine Aufgaben in diesem Status."
-                          onReset={() => setTaskTab("Alle")}
-                        />
-                      )}
-                    </div>
-                    <button
-                      className="card-bottom-action"
-                      onClick={() => {
-                        setTaskTab("Alle");
-                        setToast("Alle vorhandenen Aufgaben werden angezeigt.");
-                      }}
-                    >
-                      Alle Aufgaben anzeigen
-                      <Icon name="arrow" size={14} />
-                    </button>
-                  </section>
-                  <section className="risks-section card" id="risks">
-                    <div className="inner-section-heading">
-                      <div>
-                        <h2>Risiken & Blocker</h2>
-                        <p>Früh erkennen. Bewusst steuern.</p>
-                      </div>
-                      <span className="risk-heading-icon">
-                        <Icon name="warning" size={19} />
-                      </span>
-                    </div>
-                    <div className="risk-list">
-                      {data.risks.map((risk, i) => (
-                        <button
-                          className="risk-row"
-                          key={risk.id}
-                          onClick={() => setPanel({ kind: "risk", item: risk })}
-                        >
-                          <span
-                            className={`risk-marker ${i === 1 ? "red-marker" : ""}`}
-                          />
-                          <span>
-                            <strong>{risk.title}</strong>
-                            <small>{risk.description}</small>
-                            <span className="risk-meta">
-                              <Badge status={risk.status} />
-                              <span>Auswirkung: {risk.impact}</span>
-                            </span>
-                          </span>
-                          <Icon name="chevron" size={15} />
-                        </button>
-                      ))}
-                    </div>
-                    <div className="risk-footer">
-                      <Icon name="shield" size={14} />
-                      Im Blick behalten, bevor es zum Hindernis wird.
-                    </div>
-                  </section>
-                </div>
-                <RoadmapSection data={data} setPanel={setPanel} />
-                <DecisionsSection data={data} setPanel={setPanel} />
-                <div className="bottom-grid">
-                  <section className="architecture-section card">
-                    <div className="card-heading">
-                      <h3>Das System auf einen Blick</h3>
-                      <Icon name="workflow" size={18} />
-                    </div>
-                    <div className="architecture-flow">
-                      {architecture.map((item, i) => (
-                        <div className="architecture-item" key={item.title}>
-                          <span>{item.title}</span>
-                          {i < architecture.length - 1 && (
-                            <Icon name="chevron" size={13} />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      className="text-button"
-                      onClick={() => setPanel({ kind: "architecture" })}
-                    >
-                      Architekturdetails öffnen
-                      <Icon name="arrow" size={14} />
-                    </button>
-                  </section>
-                  <section className="vision-card">
-                    <span className="eyebrow">
-                      <Icon name="compass" size={14} /> LANGFRISTIGE
-                      PRODUKTVISION
-                    </span>
-                    <h3>Heute ein Pilot. Morgen ein System.</h3>
-                    <p>
-                      Anfrageautomation → Kundenfreigabe → Kundenübersicht →
-                      Betriebs-Cockpit → standardisierte Module
-                    </p>
-                    <span className="vision-note">
-                      Nicht Teil der aktuellen V1
-                    </span>
-                  </section>
-                </div>
+                  </details>
+                )}
                 <footer className="page-footer">
                   <span>
                     <span className="footer-mark" />
@@ -851,7 +814,9 @@ function App() {
                     </label>
                   </div>
                   <label>
-                    Abhängigkeit <span>(optional)</span>
+                    <span className="field-label">
+                      Abhängigkeit <small>(optional)</small>
+                    </span>
                     <textarea
                       name="dependency"
                       placeholder="Was muss vorher geklärt werden?"
@@ -885,7 +850,9 @@ function App() {
                     />
                   </label>
                   <label>
-                    Auswirkung <span>(optional)</span>
+                    <span className="field-label">
+                      Auswirkung <small>(optional)</small>
+                    </span>
                     <textarea
                       name="impact"
                       rows={2}

@@ -20,6 +20,9 @@ npm run preview
 
 ## Funktionsumfang
 
+- Kompakte Startseite: drei Statuskarten, Hauptpriorität, drei nächste Aufgaben und zwei Risiken
+- Separate Ansichten für Aufgaben, Projektbereiche, Pilot, Risiken, Entscheidungen und Roadmap
+- Projektwissen und weitere Navigationsbereiche werden bei Bedarf aufgeklappt
 - Responsive Übersicht mit einklappbarer Sidebar und mobilem Menü
 - Status- und Prioritätsfilter, globale Suche (Strg/⌘ K), Detail-Drawer
 - Pilotübersicht, Aufgaben, Risiken, Roadmap und Entscheidungsregister
@@ -46,4 +49,4 @@ npm test
 
 Die Tests verwenden das in dieser Cloud-Umgebung vorhandene Chromium unter `/usr/bin/chromium`. Für andere Systeme den `executablePath` in `playwright.config.ts` anpassen oder Playwrights Chromium verwenden.
 
-Geprüft werden Darstellung, Projektfilter, Suche und Detailnavigation, lokale Persistenz von Aufgaben und Entscheidungen, Aufgabenfilter, mobiles Menü, Dark Mode und Fehlerbehandlung. Build und Tests benötigen keine echten Integrationen oder Zugangsdaten.
+Geprüft werden Darstellung, Ansichtswechsel, Projektfilter, Suche und Detailnavigation, lokale Persistenz von Aufgaben und Entscheidungen, Aufgabenfilter, mobiles Menü, Dark Mode und Fehlerbehandlung. Layoutprüfungen decken alle Ansichten von 320 bis 1440 Pixeln und lange Aufgabentitel ab. Build und Tests benötigen keine echten Integrationen oder Zugangsdaten.

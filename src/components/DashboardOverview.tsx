@@ -1,6 +1,5 @@
-import type { DashboardData, ProjectArea, Panel } from "../types";
-import { Badge, EmptyState, Icon, SectionTitle } from "./UI";
-import { pilotFlow, requiredFields } from "../data";
+import type { DashboardData, Panel } from "../types";
+import { Badge, Icon } from "./UI";
 export function DashboardOverview({
   data,
   setPanel,
@@ -12,7 +11,7 @@ export function DashboardOverview({
 }) {
   return (
     <>
-      <section className="overview-grid" aria-label="Executive Overview">
+      <section className="overview-grid" aria-label="Projektüberblick">
         <button
           className="summary-card"
           onClick={() =>
@@ -33,108 +32,49 @@ export function DashboardOverview({
         >
           <div className="summary-top">
             <span>Projektstatus</span>
-            <Icon name="activity" size={18} />
+            <Icon name="activity" />
           </div>
           <div className="summary-value">
             <span className="large-dot amber-dot" />
             Auf Kurs
           </div>
-          <p>
-            Fundament, Datenbasis und
-            <br className="desktop-break" /> Pilotentwicklung laufen parallel.
-          </p>
-          <span className="summary-foot">
-            <Badge status="In Arbeit" />
-            <span>
-              Schritt für Schritt voran <Icon name="arrow" size={13} />
-            </span>
-          </span>
-        </button>
-        <button className="summary-card" onClick={() => jump("roadmap")}>
-          <div className="summary-top">
-            <span>Aktuelle Projektphase</span>
-            <Icon name="layers" size={18} />
-          </div>
-          <div className="summary-value">Pilotentwicklung</div>
-          <p>
-            Technische Grundlagen und erster
-            <br className="desktop-break" /> End-to-End-Prozess.
-          </p>
-          <span className="summary-foot">
-            <span className="muted-label">Datenbasis & Pilot V1</span>
-            <Icon name="arrow" size={15} />
-          </span>
+          <Badge status="In Arbeit" />
         </button>
         <button className="summary-card" onClick={() => jump("pilot")}>
           <div className="summary-top">
             <span>Nächster Meilenstein</span>
-            <Icon name="flag" size={18} />
+            <Icon name="flag" />
           </div>
-          <div className="summary-value milestone-value">
-            Erster vollständiger
-            <br />
-            Anfrageprozess
-          </div>
-          <p>Anfrage → Extraktion → Rückfragen → Vorgang</p>
-          <span className="summary-foot">
-            <span className="muted-label">Der nächste praktische Nachweis</span>
-            <Icon name="arrow" size={15} />
-          </span>
-        </button>
-        <button
-          className="summary-card blocker-summary"
-          onClick={() => jump("risks")}
-        >
-          <div className="summary-top">
-            <span>Aktive Blocker</span>
-            <Icon name="warning" size={18} />
-          </div>
-          <div className="summary-value milestone-value">
-            Mehrere Punkte
-            <br />
-            in Prüfung
-          </div>
+          <div className="summary-value">Anfrageprozess V1</div>
           <p>
-            Lexware, Kommunikationskanäle,
-            <br className="desktop-break" /> Datenschutz.
+            Erster vollständiger Durchlauf <Icon name="arrow" size={14} />
           </p>
-          <span className="summary-foot">
-            <span className="warning-label">Aufmerksamkeit erforderlich</span>
-            <Icon name="arrow" size={15} />
-          </span>
+        </button>
+        <button className="summary-card" onClick={() => jump("risks")}>
+          <div className="summary-top">
+            <span>Aufmerksamkeit</span>
+            <Icon name="warning" />
+          </div>
+          <div className="summary-value">Punkte in Prüfung</div>
+          <p>
+            Lexware · Kanäle · Datenschutz <Icon name="arrow" size={14} />
+          </p>
         </button>
       </section>
       <section className="priority-card">
         <div className="priority-content">
-          <div className="priority-eyebrow">
-            <span className="priority-icon">
-              <Icon name="target" size={18} />
-            </span>{" "}
-            AKTUELLE HAUPTPRIORITÄT <span className="focus-chip">Fokus V1</span>
-          </div>
-          <h2>
-            Pilot V1 technisch
-            <br className="mobile-only" /> funktionsfähig machen.
-          </h2>
+          <span className="priority-eyebrow">
+            <Icon name="target" size={18} />
+            JETZT IM FOKUS <span className="focus-chip">Pilot V1</span>
+          </span>
+          <h2>Pilot technisch funktionsfähig machen.</h2>
           <p>
-            Eine reale Kundenanfrage automatisch erfassen, auswerten, fehlende
-            Informationen
-            <br className="desktop-break" /> erkennen und als strukturierten
-            Vorgang speichern.
+            Eine reale Anfrage erfassen, auswerten und als vollständigen Vorgang
+            speichern.
           </p>
-          <div className="priority-bottom">
-            <span>
-              <span className="light-dot" />
-              Der erste relevante Praxisnachweis
-            </span>
-            <button
-              onClick={() =>
-                setPanel({ kind: "project", item: data.projects[0] })
-              }
-            >
-              Pilot im Detail <Icon name="arrow" size={15} />
-            </button>
-          </div>
+          <button className="priority-detail" onClick={() => jump("pilot")}>
+            Pilot ansehen <Icon name="arrow" size={16} />
+          </button>
         </div>
         <div className="priority-steps">
           {[
@@ -144,8 +84,8 @@ export function DashboardOverview({
             ["Strukturierter Vorgang", "Geplant"],
           ].map(([label, state], i) => (
             <div
-              className={`priority-step ${i < 2 ? "working" : ""}`}
               key={label}
+              className={`priority-step ${i < 2 ? "working" : ""}`}
             >
               <span className="step-index">
                 {String(i + 1).padStart(2, "0")}
@@ -157,12 +97,8 @@ export function DashboardOverview({
                   {state}
                 </small>
               </div>
-              {i < 2 && <span className="step-pulse" />}
             </div>
           ))}
-        </div>
-        <div className="priority-watermark" aria-hidden="true">
-          ↗
         </div>
       </section>
     </>
